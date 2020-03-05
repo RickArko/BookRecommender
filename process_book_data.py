@@ -135,7 +135,7 @@ def process_simple_book_features(df):
 ### ---------------------------------- ###
 
 large_json = 'data/goodreads_books.json.gz'
-processed_csv = 'books_extra_features.csv'
+processed_csv = 'data/books_extra_features.csv'
 
 chunks = pd.read_json(large_json, lines=True, chunksize = 100_000)
 start = time.time()
@@ -165,8 +165,8 @@ dfout[['book_id', 'description', 'format', 'title', 'title_without_series',
 ### Process and Store simple (numeric) book features ###
 ### ------------------------------------------------ ###
 
-large_json = 'goodreads_books.json.gz'
-processed_csv = 'books_simple_features.csv'
+large_json = 'data/goodreads_books.json.gz'
+processed_csv = 'data/books_simple_features.csv'
 
 chunks = pd.read_json(large_json, lines=True, chunksize = 100_000)
 start = time.time()
