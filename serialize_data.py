@@ -164,7 +164,7 @@ def save_book_features(large_json: str, processed_csv: str, chunksize: int = 100
             dffeats.to_csv(processed_csv, header=False, index=False, mode="a")
 
     dfout = pd.read_csv(processed_csv)
-    dfout[["book_id", "title", "title_without_series"]].to_parquet("data/title.snap.parquet")
+    dfout[["book_id", "title", "title_without_series"]].to_parquet("data/titles.snap.parquet")
     column_order = [
         "book_id",
         "description",
