@@ -127,7 +127,7 @@ def process_simple_book_features(df):
     return df
 
 
-def process_book_json_to_csv(large_json: str, processed_csv: str, chunksize: int = 100_000):
+def save_book_features(large_json: str, processed_csv: str, chunksize: int = 100_000):
     """Read large json file in chunks and save to csv file.
     """
     chunks = pd.read_json(large_json, lines=True, chunksize = 100_000)
@@ -147,8 +147,38 @@ def process_book_json_to_csv(large_json: str, processed_csv: str, chunksize: int
             dffeats.to_csv(processed_csv, 
                         header=False, index=False, mode='a')
 
+    dfout = pd.read_csv(processed_csv)
+    dfout[['book_id', 'title', 'title_without_series']].to_parquet("data/title.snap.parquet")
+    column_order = ['book_id', 'description', 'format', 'title', 'title_without_series','language_code', 'authors', 'country_code']
+    dfout[column_order].to_parquet(processed_csv.replace('csv', 'snap.parquet'))
     time_seconds = time.time() - start
     print(f"Finihsed processing {large_json} and saving output to {processed_csv} in {time_seconds:.1f} seconds")
+
+
+def save_simple_book_features(large_json: str, output_file: str, chunksize: int = 100_000):
+    # Process and Store simple (numeric) book features
+    chunks = pd.read_json(large_json, lines=True, chunksize = 100_000)
+    start = time.time()
+
+    for i, df_chunk in tqdm(enumerate(chunks)):
+        dfclean = process_simple_book_features(df_chunk)
+        print(f'iteration {i} clean_shape: {dfclean.shape}, original: {df_chunk.shape}')
+
+        if i == 0:
+            remove_file_if_exists(output_file)
+            dfclean.to_csv(output_file, 
+                        header=True, index=False)
+
+        if i > 0:
+            dfclean.to_csv(output_file, 
+                        header=False, index=False, mode='a')
+
+    dfout = pd.read_csv(output_file)
+    column_order = ['book_id', 'work_id', 'publication_year', 'is_ebook', 'num_pages', 'ratings_count', 'text_reviews_count', 'average_rating']
+    dfout[column_order].to_parquet(output_file.replace('csv', 'snap.parquet'))
+    time_seconds = time.time() - start
+    print(f"Finnished processing {large_json} and saving output to {output_file} in {time_seconds:.1f} seconds")
+    return
 
 
 def save_interactions(input_path):
@@ -159,17 +189,18 @@ def save_interactions(input_path):
 
 if __name__ == '__main__':
 
-    large_json = 'data/goodreads_books.json.gz'
-    processed_csv = 'data/books_extra_features.csv'
-    
-    # Read book features json extract features and saves
-    process_book_json_to_csv(large_json, processed_csv)
+    CHUNK_SIZE = 100_000
+    LARGE_JSON = 'data/goodreads_books.json.gz'
 
-    # Read processed .csv and save as parquet for faster reads
-    dfout = pd.read_csv(processed_csv)
-    dfout[['book_id', 'title', 'title_without_series']].to_parquet("data/title.snap.parquet")
-    dfout[['book_id', 'description', 'format', 'title', 'title_without_series',
-        'language_code', 'authors', 'country_code']].to_parquet(processed_csv.replace('csv', 'snap.parquet'))
+    
+    # Read book features and save to csv/parquet
+    processed_csv = 'data/books_extra_features.csv'
+    save_book_features(LARGE_JSON, processed_csv, chunksize=CHUNK_SIZE)
+    
+    # Save simple features to parquet
+    output_file = 'data/books_simple_features.csv'
+    save_simple_book_features(LARGE_JSON, output_file, chunksize=CHUNK_SIZE)
+
     
     # Interactions
     interactions_csv = 'data/goodreads_interactions.csv'
