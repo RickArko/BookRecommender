@@ -12,6 +12,7 @@ Download GoodReads data from [UCSD Book Graph](https://sites.google.com/eng.ucsd
 ```
     python -m venv venv
     venv\Scripts\activate.bat
+    python -m pip install --upgrade pip
     pip install -r requirements.txt
     python -m ipykernel install --user --name=book-rec
 ```
