@@ -1,45 +1,33 @@
-"""Module to prepare data for modelling
-Sources:
-- interactions
-- books string features
-- books numeric features
-
-- full_interactions.feather - 228 million reader-book interactions
-- interactions.feather - 88 million reader-book interactions (with known books)
-
-- `simple_book_features.feather` - numberic book feats
-"""
 import datetime
 import os
 import sys
 import time
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
+
+
+README = """Module to prepare data for modelling
+    Sources:
+        - interactions
+        - books string features
+        - books numeric features
+
+        - full_interactions.feather - 228 million reader-book interactions
+        - interactions.feather - 88 million reader-book interactions (with known books)
+
+    - `simple_book_features.feather` - numberic book feats
+"""
 
 # SAMPLE PARAMS
 MIN_READS = 50
 TOP_BOOKS = 1_000
 TOP_USES = 50_000
 
-# contains some one-time data processing
-# # reals all 228 million user-book interactions
-# dfi = pd.read_feather('data/full_interactions.feather')
-# # limit only interactions with known books
-# dfi = dfi.merge(dfb[['book_id']])
-# # 228 million (with 2.3 million books) to 88 million (with 438k books)
-# dfi.to_feather('data/interactions.feather')
 
-
-# load data
-# dft = pd.read_feather('data/titles.feather')
-# dfb = pd.read_feather('data/simple_book_features.feather')
-# dfc = pd.read_feather('data/books_extra_features.feather')
-
-
-def active_filter(data, min_reads=50):
-    """Filter interactions data by activity theshold
-    (min_reads)
+def active_filter(data, min_reads=50) -> pd.DataFrame:
+    """Filter interactions data by activity threshold (min_reads=50).
     """
     df_user_counts = pd.DataFrame(data.groupby('user_id').size(), columns=['count'])
     df_book_counts = pd.DataFrame(data.groupby('book_id').size(), columns=['count'])
@@ -69,12 +57,22 @@ def get_top_x_books(data, top_x=10_000):
     return df_book_counts.sort_values('count', ascending=False).head(top_x).index.values
 
 
-## Load/Sample data
-start = time.time()
-dfi = pd.read_feather('data/interactions.feather')
-dff = active_filter(dfi, min_reads=MIN_READS)
-fname = f'data/filter/df_filter_min_reads-{min_reads}.feather'
-time_taken = time.time() - start
+
+if __name__ == '__main__':
+    
+    # contains some one-time data processing
+    # # reals all 228 million user-book interactions
+
+    # # limit only interactions with known books
+    # dfi = dfi.merge(dfb[['book_id']])
+    # # 228 million (with 2.3 million books) to 88 million (with 438k books)
+
+    start = time.time()
+    titles = pd.read_parquet('data/titles.snap.parquet')
+    dfi = pd.read_parquet('data/goodreads_interactions.snap.parquet')
+    dfbooks = pd.read_parquet('data/books_extra_features.snap.parquet')
+    dff = active_filter(dfi, min_reads=MIN_READS)
+    time_taken = time.time() - start
 
 
 ### Select a representative sample to build off
