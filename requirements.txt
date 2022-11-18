@@ -10,3 +10,4 @@ matplotlib
 tqdm
 scipy
 lightgbm
+jupyter
