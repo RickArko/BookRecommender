@@ -33,7 +33,7 @@ README = """Module to process downloaded goodreads json files and save in datafr
 """
 
 
-def load_json_to_df(path, head = 10_000):
+def load_json_to_df(path, head=10_000):
     """load top head lines of data from json path
     and return pandas.DataFrame
     """
@@ -51,46 +51,56 @@ def load_json_to_df(path, head = 10_000):
 
 
 def remove_file_if_exists(filename):
-    """Remove file if present otherwise pass
-    """
-    try: 
+    """Remove file if present otherwise pass"""
+    try:
         os.remove(filename)
-        print(f'removed {filename}')
-    except OSError as e: 
-        if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
-            raise # re-raise exception if a different error occurred
+        print(f"removed {filename}")
+    except OSError as e:
+        if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
+            raise  # re-raise exception if a different error occurred
 
 
 def extract_more_book_features(df):
     """Extracts desired features from json
 
     adds columns:
-        ('title', 'title_without_series', 'language_code', 
+        ('title', 'title_without_series', 'language_code',
          'authors', 'edition_information', 'country_code'
         )
     returns:
         pandas.DataFrame
     """
     cols = [
-        'book_id', 'popular_shelves', 'description', 'format', 
-        'series', 'title', 'title_without_series', 'language_code', 
-        'authors', 'edition_information', 'country_code',
-            ]
+        "book_id",
+        "popular_shelves",
+        "description",
+        "format",
+        "series",
+        "title",
+        "title_without_series",
+        "language_code",
+        "authors",
+        "edition_information",
+        "country_code",
+    ]
 
     dict(df[cols].dtypes)
 
     return df[cols].astype(
-        {'book_id': 'int64',
-        'popular_shelves': 'object',
-        'description': 'object',
-        'format': 'object',
-        'series': 'object',
-        'title': 'object', 
-        'title_without_series': 'object',
-        'language_code': 'object', 
-        'authors': 'object', 
-        'edition_information': 'object', 
-        'country_code': 'object'})
+        {
+            "book_id": "int64",
+            "popular_shelves": "object",
+            "description": "object",
+            "format": "object",
+            "series": "object",
+            "title": "object",
+            "title_without_series": "object",
+            "language_code": "object",
+            "authors": "object",
+            "edition_information": "object",
+            "country_code": "object",
+        }
+    )
 
 
 def process_simple_book_features(df):
@@ -100,16 +110,25 @@ def process_simple_book_features(df):
     returns:
         pandas.DataFrame (numeric features only)
     """
-    df['is_ebook'] = np.where(df['is_ebook'] == 'true', 1, 0)
-    drop_cols = ['isbn', 'asin', 'kindle_asin', 'link', 'publisher', 'isbn13',
-                'publication_day', 'publication_month', 'edition_information',
-                'url', 'image_url',]
+    df["is_ebook"] = np.where(df["is_ebook"] == "true", 1, 0)
+    drop_cols = [
+        "isbn",
+        "asin",
+        "kindle_asin",
+        "link",
+        "publisher",
+        "isbn13",
+        "publication_day",
+        "publication_month",
+        "edition_information",
+        "url",
+        "image_url",
+    ]
 
-    df = df.drop(drop_cols, axis='columns')
+    df = df.drop(drop_cols, axis="columns")
 
-    int_cols = ['book_id', 'text_reviews_count', 'num_pages', 'publication_year', 'work_id',
-                'ratings_count']
-    num_cols = ['average_rating']
+    int_cols = ["book_id", "text_reviews_count", "num_pages", "publication_year", "work_id", "ratings_count"]
+    num_cols = ["average_rating"]
 
     for col in int_cols + num_cols:
         try:
@@ -123,59 +142,72 @@ def process_simple_book_features(df):
         except Exception as e:
             pass
             # print(f'unable to convert column: {col} error: {e}')
-    df = df.select_dtypes(include=['int', 'float', 'bool'])
+    df = df.select_dtypes(include=["int", "float", "bool"])
     return df
 
 
 def save_book_features(large_json: str, processed_csv: str, chunksize: int = 100_000):
-    """Read large json file in chunks and save to csv file.
-    """
-    chunks = pd.read_json(large_json, lines=True, chunksize = 100_000)
+    """Read large json file in chunks and save to csv file."""
+    chunks = pd.read_json(large_json, lines=True, chunksize=100_000)
     start = time.time()
 
     for i, df_chunk in tqdm(enumerate(chunks)):
 
         dffeats = extract_more_book_features(df_chunk)
-        print(f'iteration {i} clean_shape: {dffeats.shape}, original: {df_chunk.shape}')
+        print(f"iteration {i} clean_shape: {dffeats.shape}, original: {df_chunk.shape}")
 
         if i == 0:
             remove_file_if_exists(processed_csv)
-            dffeats.to_csv(processed_csv, 
-                        header=True, index=False)
+            dffeats.to_csv(processed_csv, header=True, index=False)
 
         if i > 0:
-            dffeats.to_csv(processed_csv, 
-                        header=False, index=False, mode='a')
+            dffeats.to_csv(processed_csv, header=False, index=False, mode="a")
 
     dfout = pd.read_csv(processed_csv)
-    dfout[['book_id', 'title', 'title_without_series']].to_parquet("data/title.snap.parquet")
-    column_order = ['book_id', 'description', 'format', 'title', 'title_without_series','language_code', 'authors', 'country_code']
-    dfout[column_order].to_parquet(processed_csv.replace('csv', 'snap.parquet'))
+    dfout[["book_id", "title", "title_without_series"]].to_parquet("data/title.snap.parquet")
+    column_order = [
+        "book_id",
+        "description",
+        "format",
+        "title",
+        "title_without_series",
+        "language_code",
+        "authors",
+        "country_code",
+    ]
+    dfout[column_order].to_parquet(processed_csv.replace("csv", "snap.parquet"))
     time_seconds = time.time() - start
     print(f"Finihsed processing {large_json} and saving output to {processed_csv} in {time_seconds:.1f} seconds")
 
 
 def save_simple_book_features(large_json: str, output_file: str, chunksize: int = 100_000):
     # Process and Store simple (numeric) book features
-    chunks = pd.read_json(large_json, lines=True, chunksize = 100_000)
+    chunks = pd.read_json(large_json, lines=True, chunksize=100_000)
     start = time.time()
 
     for i, df_chunk in tqdm(enumerate(chunks)):
         dfclean = process_simple_book_features(df_chunk)
-        print(f'iteration {i} clean_shape: {dfclean.shape}, original: {df_chunk.shape}')
+        print(f"iteration {i} clean_shape: {dfclean.shape}, original: {df_chunk.shape}")
 
         if i == 0:
             remove_file_if_exists(output_file)
-            dfclean.to_csv(output_file, 
-                        header=True, index=False)
+            dfclean.to_csv(output_file, header=True, index=False)
 
         if i > 0:
-            dfclean.to_csv(output_file, 
-                        header=False, index=False, mode='a')
+            dfclean.to_csv(output_file, header=False, index=False, mode="a")
 
     dfout = pd.read_csv(output_file)
-    column_order = ['book_id', 'work_id', 'publication_year', 'is_ebook', 'num_pages', 'ratings_count', 'text_reviews_count', 'average_rating']
-    dfout[column_order].to_parquet(output_file.replace('csv', 'snap.parquet'))
+    column_order = [
+        "book_id",
+        "work_id",
+        "publication_year",
+        "is_ebook",
+        "num_pages",
+        "ratings_count",
+        "text_reviews_count",
+        "average_rating",
+    ]
+    dfout[column_order].to_parquet(output_file.replace("csv", "snap.parquet"))
     time_seconds = time.time() - start
     print(f"Finnished processing {large_json} and saving output to {output_file} in {time_seconds:.1f} seconds")
     return
@@ -183,25 +215,23 @@ def save_simple_book_features(large_json: str, output_file: str, chunksize: int 
 
 def save_interactions(input_path):
     dfi = pd.read_csv(input_path)
-    dfi.to_parquet(input_path.replace('csv', 'snap.parquet'))
+    dfi.to_parquet(input_path.replace("csv", "snap.parquet"))
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     CHUNK_SIZE = 100_000
-    LARGE_JSON = 'data/goodreads_books.json.gz'
+    LARGE_JSON = "data/goodreads_books.json.gz"
 
-    
     # Read book features and save to csv/parquet
-    processed_csv = 'data/books_extra_features.csv'
+    processed_csv = "data/books_extra_features.csv"
     save_book_features(LARGE_JSON, processed_csv, chunksize=CHUNK_SIZE)
-    
+
     # Save simple features to parquet
-    output_file = 'data/books_simple_features.csv'
+    output_file = "data/books_simple_features.csv"
     save_simple_book_features(LARGE_JSON, output_file, chunksize=CHUNK_SIZE)
 
-    
     # Interactions
-    interactions_csv = 'data/goodreads_interactions.csv'
+    interactions_csv = "data/goodreads_interactions.csv"
     save_interactions(interactions_csv)
