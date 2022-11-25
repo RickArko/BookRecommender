@@ -23,13 +23,14 @@ def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_
     """Create a matrix of users and books with the number of reads as the value."""
     start = time.time()
     logger.info("Begin Creating Feature Matrix")
-    dff = dfi.set_index("book_id").join(dfbooks[["book_id", "title"]].set_index("book_id"), how="inner")
+    dff = dfi.set_index("book_id").join(dfbooks[["book_id", "title"]].set_index("book_id"), how="inner").reset_index()
+    
     topu = dff.groupby("user_id")["book_id"].nunique()
     topu = topu.sort_values(ascending=False).head(top_users)
 
-    topb = dff.groupby("book_id").agg({"user_id": "nunique", "is_reviewed": "sum", "is_read": "sum"})
-    bookrate = dff[dff["is_read"] == 1].groupby("book_id")["rating"].mean()
-    topb = topb.join(bookrate)
+    topb = dff.groupby("book_id").agg({"user_id": "nunique", "is_reviewed": "sum", "is_read": "sum", "rating": "mean"})
+    # bookrate = dff[dff["is_read"] == 1].groupby("book_id")["rating"].mean()
+    # topb = topb.join(bookrate)
     topb = topb.join(dfbooks.set_index("book_id")[["title"]])
     topb = topb.sort_values("is_read", ascending=False).head(top_books)
 
