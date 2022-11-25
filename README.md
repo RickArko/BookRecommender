@@ -20,3 +20,7 @@ Download GoodReads data from [UCSD Book Graph](https://sites.google.com/eng.ucsd
 ### Models
 1. Collaborative Filtering
 2. Content Based
+
+
+### Resources
+  - [collaborative-filtering-deep-dive](https://www.kaggle.com/code/jhoward/collaborative-filtering-deep-dive)
