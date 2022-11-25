@@ -45,7 +45,7 @@ def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_
 
 if __name__ == '__main__':
     start = time.time()
-
+    FNAME_MATRIX = Path("date").joinpath("matrix.snap.parquet")
     titles = pd.read_parquet(PATH_TITLES)
     DFI = pd.read_parquet(PATH_INTERACTIONS)
     DFB = pd.read_parquet(PATH_BOOKS)
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     mat = create_matrix(dfi=DFI, dfbooks=DFB, top_books=TOP_BOOKS, top_users=TOP_USERS)
 
     mat.columns = [str(f) for f in mat.columns]
-    mat.to_parquet('data/matrix.snap.parquet')
+    mat.to_parquet(FNAME_MATRIX)
