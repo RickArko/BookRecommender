@@ -9,14 +9,9 @@ import pandas as pd
 from loguru import logger
 
 
-# SAMPLE PARAMS
-MIN_READS = 50
-TOP_BOOKS = 20_000
-TOP_USERS = 10_000
-
-PATH_INTERACTIONS = Path("data").joinpath("goodreads_interactions.snap.parquet")
-PATH_BOOKS = Path("data").joinpath("books_extra_features.snap.parquet")
-PATH_TITLES = Path("data").joinpath("titles.snap.parquet")
+# PARAMS
+TOP_BOOKS = None
+TOP_USERS = None
 
 
 def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_users=None) -> pd.DataFrame:
@@ -45,7 +40,12 @@ def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_
 
 if __name__ == "__main__":
     start = time.time()
-    FNAME_MATRIX = Path("date").joinpath("matrix.snap.parquet")
+
+    FNAME_MATRIX = Path("data").joinpath("matrix.snap.parquet")    
+    PATH_INTERACTIONS = Path("data").joinpath("goodreads_interactions.snap.parquet")
+    PATH_BOOKS = Path("data").joinpath("books_extra_features.snap.parquet")
+    PATH_TITLES = Path("data").joinpath("titles.snap.parquet")
+
     titles = pd.read_parquet(PATH_TITLES)
     DFI = pd.read_parquet(PATH_INTERACTIONS)
     DFB = pd.read_parquet(PATH_BOOKS)

@@ -1,8 +1,6 @@
 # BookRecommender
 Repository for Book Recommendations using UCSD Goodreads Data.
 
-## Setup:
-
 ### Data
 Download GoodReads data from [UCSD Book Graph](https://sites.google.com/eng.ucsd.edu/ucsdbookgraph/home).
 

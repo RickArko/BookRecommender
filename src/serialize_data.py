@@ -1,13 +1,14 @@
+import datetime
 import errno
-import time
-import os
-import json
 import gzip
+import json
+import os
+import time
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import datetime
 from tqdm import tqdm
-
 
 README = """Module to process downloaded goodreads json files and save in dataframe format.
 
@@ -219,19 +220,29 @@ def save_interactions(input_path):
     return
 
 
+def main(json_path, csv_path, interactions_path, output_path, chunksize=100_000):
+    """Serialze DataFrames to parquet files.
+
+    Args:
+        json_path (_type_): _description_
+        csv_path (_type_): _description_
+        interactions_path (_type_): _description_
+        output_path (_type_): _description_
+        chunksize (_type_, optional): _description_. Defaults to 100_000.
+    """
+    save_book_features(json_path, csv_path, chunksize=chunksize)
+    save_simple_book_features(json_path, output_path, chunksize=chunksize)
+    save_interactions(interactions_path)
+    return
+
+
 if __name__ == "__main__":
 
     CHUNK_SIZE = 100_000
-    LARGE_JSON = "data/goodreads_books.json.gz"
+    LARGE_JSON = Path("data").joinpath("goodreads_books.json.gz")
 
     # Read book features and save to csv/parquet
-    processed_csv = "data/books_extra_features.csv"
-    save_book_features(LARGE_JSON, processed_csv, chunksize=CHUNK_SIZE)
-
-    # Save simple features to parquet
-    output_file = "data/books_simple_features.csv"
-    save_simple_book_features(LARGE_JSON, output_file, chunksize=CHUNK_SIZE)
-
-    # Interactions
-    interactions_csv = "data/goodreads_interactions.csv"
-    save_interactions(interactions_csv)
+    CSV_PATH = Path("data").joinpath("books_extra_features.csv")
+    OUTPUT_PATH = Path("data").joinpath("books_simple_features.csv")
+    INTERACTIONS_PATH = Path("data").joinpath("interactions.csv")
+    main(json_path=LARGE_JSON, csv_path=CSV_PATH, interactions_path=INTERACTIONS_PATH, output_path=OUTPUT_PATH, chunksize=CHUNK_SIZE)
