@@ -1,6 +1,7 @@
 black
 fastparquet
 fuzzywuzzy[speedup]
+gdown
 implicit
 ipykernel
 jupyter
