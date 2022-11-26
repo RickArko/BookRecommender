@@ -21,7 +21,6 @@ if __name__ == "__main__":
     titles = pd.read_parquet(FNAME_TITLES)
     TITLE_MAP = titles.set_index("book_id")["title"].to_dict()
 
-
     start = time.time()
     model = CosineRecommender(K=100, num_threads=-1)
     model.fit(csr_matrix)
@@ -30,6 +29,6 @@ if __name__ == "__main__":
         with codecs.open(FNAME_RESULTS, "w", "utf8") as o:
             for _id in mat.index:
                 title = TITLE_MAP.get(_id)
-                for book, score in zip(* model.similar_items(_id, 11)):
+                for book, score in zip(*model.similar_items(_id, 11)):
                     o.write(f"{title}\t{TITLE_MAP.get(book)}\t{score}\n")
                 progress.update(1)

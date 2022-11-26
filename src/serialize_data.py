@@ -245,4 +245,10 @@ if __name__ == "__main__":
     CSV_PATH = Path("data").joinpath("books_extra_features.csv")
     OUTPUT_PATH = Path("data").joinpath("books_simple_features.csv")
     INTERACTIONS_PATH = Path("data").joinpath("interactions.csv")
-    main(json_path=LARGE_JSON, csv_path=CSV_PATH, interactions_path=INTERACTIONS_PATH, output_path=OUTPUT_PATH, chunksize=CHUNK_SIZE)
+    main(
+        json_path=LARGE_JSON,
+        csv_path=CSV_PATH,
+        interactions_path=INTERACTIONS_PATH,
+        output_path=OUTPUT_PATH,
+        chunksize=CHUNK_SIZE,
+    )

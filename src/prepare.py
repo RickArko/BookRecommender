@@ -19,7 +19,7 @@ def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_
     start = time.time()
     logger.info("Begin Creating Feature Matrix")
     dff = dfi.set_index("book_id").join(dfbooks[["book_id", "title"]].set_index("book_id"), how="inner").reset_index()
-    
+
     topu = dff.groupby("user_id")["book_id"].nunique()
     topu = topu.sort_values(ascending=False).head(top_users)
 
@@ -41,7 +41,7 @@ def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_
 if __name__ == "__main__":
     start = time.time()
 
-    FNAME_MATRIX = Path("data").joinpath("matrix.snap.parquet")    
+    FNAME_MATRIX = Path("data").joinpath("matrix.snap.parquet")
     PATH_INTERACTIONS = Path("data").joinpath("goodreads_interactions.snap.parquet")
     PATH_BOOKS = Path("data").joinpath("books_extra_features.snap.parquet")
     PATH_TITLES = Path("data").joinpath("titles.snap.parquet")
