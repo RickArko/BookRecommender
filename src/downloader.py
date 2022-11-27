@@ -56,7 +56,7 @@ def download_file(id, output=DATA_DIR, quiet=False):
     gdown.download(url, output=output, quiet=quiet)
 
 
-def main(data_dir: str):
+def download_goodreads_data(data_dir: str):
     os.makedirs(data_dir, exist_ok=True)
     for key, name in DOWNLOAD_MAP.items():
         logger.info(f"Downloading {name}")
@@ -64,4 +64,4 @@ def main(data_dir: str):
 
 
 if __name__ == "__main__":
-    main(DATA_DIR)
+    download_goodreads_data(DATA_DIR)

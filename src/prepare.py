@@ -24,16 +24,21 @@ def create_matrix(dfi: pd.DataFrame, dfbooks: pd.DataFrame, top_books=None, top_
     topu = topu.sort_values(ascending=False).head(top_users)
 
     topb = dff.groupby("book_id").agg({"user_id": "nunique", "is_reviewed": "sum", "is_read": "sum", "rating": "mean"})
-    # bookrate = dff[dff["is_read"] == 1].groupby("book_id")["rating"].mean()
-    # topb = topb.join(bookrate)
     topb = topb.join(dfbooks.set_index("book_id")[["title"]])
     topb = topb.sort_values("is_read", ascending=False).head(top_books)
 
     dff = dff[dff["user_id"].isin(topu.index)]
     dff = dff[dff["book_id"].isin(topb.index)]
 
-    mat = dff.pivot(index="book_id", columns="user_id", values="rating").fillna(0)
+    
+    dff = dff[(dff["user_id"] > 0) & (dff["rating"] > 0)]
+    
+    n_users = dff["user_id"].nunique()
+    n_books = dff["book_id"].nunique()
+    logger.info(f"Users: {n_users:,d} - Books: {n_books:,d}")
+    
     time_taken = time.time() - start
+    mat = dff.head(10_000000).pivot(index="book_id", columns="user_id", values="rating").fillna(0)
     logger.info(f"Finished generating user-rating matrix in {time_taken:.2f} seconds")
     return mat
 

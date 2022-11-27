@@ -15,6 +15,11 @@ Download GoodReads data from [UCSD Book Graph](https://sites.google.com/eng.ucsd
     python -m ipykernel install --user --name=book-rec
 ```
 
+### Pipeline
+```
+  python serialize_data.py
+```
+
 ### Models
 1. Collaborative Filtering
 2. Content Based

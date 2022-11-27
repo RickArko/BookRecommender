@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from src.downloader import download_goodreads_data
 
 README = """Module to process downloaded goodreads json files and save in dataframe format.
 
@@ -239,14 +240,18 @@ def main(json_path, csv_path, interactions_path, output_path, chunksize=100_000)
 if __name__ == "__main__":
 
     CHUNK_SIZE = 100_000
-    LARGE_JSON = Path("data").joinpath("goodreads_books.json.gz")
+    PATH_JSON = Path("data").joinpath("goodreads_books.json.gz")
+    
+    if not PATH_JSON.exists():
+        download_goodreads_data("data")
 
     # Read book features and save to csv/parquet
     CSV_PATH = Path("data").joinpath("books_extra_features.csv")
     OUTPUT_PATH = Path("data").joinpath("books_simple_features.csv")
     INTERACTIONS_PATH = Path("data").joinpath("interactions.csv")
+
     main(
-        json_path=LARGE_JSON,
+        json_path=PATH_JSON,
         csv_path=CSV_PATH,
         interactions_path=INTERACTIONS_PATH,
         output_path=OUTPUT_PATH,
